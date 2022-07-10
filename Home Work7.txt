@@ -1,0 +1,60 @@
+Задачи:
+
+1. Подключить репозиторий с nginx любым удобным способом, установить nginx и потом удалить nginx, используя утилиту dpkg.
+2. Установить пакет на свой выбор, используя snap.
+3. Настроить iptables: разрешить подключения только на 22-й и 80-й порты.
+
+# Уточняю информацию о своей системе
+lsb_release -a
+
+# Формирую список пакетов
+sudo apt update
+
+# Устанавливаю необходимые для подключения репозитория пакеты
+sudo apt -y install curl gnupg2 ca-certificates lsb-release
+
+# Подключаю репозиторий со стабильной версией nginx
+echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
+
+# Импортирую оф ключ, для проверки подлинности пакетов
+curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
+
+# Проверяю ключ(Вывод команды должен содержать полный отпечаток ключа 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62)
+gpg --dry-run --quiet --import --import-options import-show /tmp/nginx_signing.key
+
+# Перемещаю ключ в каталог доверенных ключей
+sudo mv /tmp/nginx_signing.key /etc/apt/trusted.gpg.d/nginx_signing.asc
+
+# Формирую список пакетов
+sudo apt update
+
+# Скачиваю nginx
+apt download nginx
+
+# Проверяю наличие
+ls
+
+# Устанавливаю nginx
+sudo dpkg -i nginx_1.22.0-1~jammy_amd64.deb
+
+# Удаляю nginx
+sudo dpkg -P nginx
+
+# Установка клиента snap
+sudo apt install snapd
+
+# Устанавливаю NOTEPAD ++
+sudo snap install notepad-plus-plus
+
+# Открываю сведения по iptables
+sudo iptables -L
+
+# Устанавливаю политику по умолчанию
+sudo iptables -P INPUT DROP
+
+# Вношу исключения подключений на 22 и 80 порты
+sudo iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+
+# Открываю сведения по iptables
+sudo iptables -L
